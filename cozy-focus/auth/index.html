@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cozy Focus Sign-in</title>
+<style>
+  :root {
+    --bg: #2b1d16; --card: #4a3226; --text: #f7ebd3; --muted: #d6c3a8;
+    --accent: #e0a458; --btn-text: #2b1d16; --border: #1a110c; --shadow: #7a4a24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: var(--bg); color: var(--text);
+    font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 16px;
+  }
+  .card {
+    width: 100%; max-width: 420px; background: var(--card);
+    border: 4px solid var(--border); box-shadow: 6px 6px 0 rgba(0,0,0,.45);
+    padding: 28px 20px; text-align: center;
+  }
+  .icon { font-size: 44px; line-height: 1; }
+  h1 { color: var(--accent); font-size: 1.35rem; margin: 14px 0 10px; letter-spacing: .02em; }
+  p { margin: 8px 0; color: var(--muted); }
+  .btn {
+    display: inline-block; margin-top: 18px; padding: 14px 22px;
+    background: var(--accent); color: var(--btn-text); font-weight: 700;
+    text-decoration: none; border: 4px solid var(--border);
+    box-shadow: 4px 4px 0 var(--shadow); text-transform: uppercase;
+  }
+  .btn:active { transform: translate(4px, 4px); box-shadow: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="icon" id="icon">&#9749;</div>
+  <h1 id="title"></h1>
+  <p id="body"></p>
+  <p id="hint"></p>
+  <a class="btn" id="open" href="#" hidden></a>
+</main>
+<script>
+  // Supabase sends people here after they confirm their email, with
+  // ?code=... (success) or #error_description=... (e.g. expired link).
+  // On Android with the app installed, Android normally opens these links
+  // directly in Cozy Focus and this page never shows.
+  var copy = {
+    en: {
+      okTitle: "Email confirmed!",
+      okBody: "Your Cozy Focus account is ready.",
+      okHint: "If the app didn't open, tap the button below on your phone, or open Cozy Focus and sign in with your email and password.",
+      open: "Open Cozy Focus",
+      errTitle: "This link didn't work",
+      errBody: "It may have expired or already been used.",
+      errHint: "Open Cozy Focus and sign in. If your email isn't confirmed yet, tap Resend email to get a new link."
+    },
+    pt: {
+      okTitle: "E-mail confirmado!",
+      okBody: "Sua conta do Cozy Focus está pronta.",
+      okHint: "Se o app não abriu, toque no botão abaixo no seu celular ou abra o Cozy Focus e entre com seu e-mail e senha.",
+      open: "Abrir o Cozy Focus",
+      errTitle: "Este link não funcionou",
+      errBody: "Ele pode ter expirado ou já ter sido usado.",
+      errHint: "Abra o Cozy Focus e entre. Se o seu e-mail ainda não estiver confirmado, toque em Reenviar e-mail para receber um novo link."
+    },
+    es: {
+      okTitle: "¡Correo confirmado!",
+      okBody: "Tu cuenta de Cozy Focus está lista.",
+      okHint: "Si la app no se abrió, toca el botón de abajo en tu teléfono, o abre Cozy Focus e inicia sesión con tu correo y contraseña.",
+      open: "Abrir Cozy Focus",
+      errTitle: "Este enlace no funcionó",
+      errBody: "Puede que haya caducado o que ya se haya usado.",
+      errHint: "Abre Cozy Focus e inicia sesión. Si tu correo aún no está confirmado, toca Reenviar correo para recibir un enlace nuevo."
+    }
+  };
+
+  var lang = (navigator.language || "en").slice(0, 2).toLowerCase();
+  var t = copy[lang] || copy.en;
+  document.documentElement.lang = copy[lang] ? lang : "en";
+
+  var query = new URLSearchParams(location.search);
+  var hash = new URLSearchParams(location.hash.slice(1));
+  var failed = query.get("error") || hash.get("error") ||
+               query.get("error_description") || hash.get("error_description");
+  var code = query.get("code");
+
+  function show(id, text) { document.getElementById(id).textContent = text; }
+
+  if (failed) {
+    document.getElementById("icon").textContent = "✉️";
+    show("title", t.errTitle);
+    show("body", t.errBody);
+    show("hint", t.errHint);
+  } else {
+    show("title", t.okTitle);
+    show("body", t.okBody);
+    show("hint", t.okHint);
+    // Hand the sign-in code to the app. A tap is needed: browsers like
+    // Firefox won't open an app from an automatic redirect.
+    var params = code ? "?code=" + encodeURIComponent(code) : "";
+    var isAndroid = /android/i.test(navigator.userAgent);
+    var link = isAndroid
+      ? "intent://login-callback" + params +
+        "#Intent;scheme=cozyfocus;package=io.github.lorrde.cozyfocus;end"
+      : "cozyfocus://login-callback" + params;
+    var isPhone = isAndroid || /iphone|ipad/i.test(navigator.userAgent);
+    if (isPhone) {
+      var btn = document.getElementById("open");
+      btn.href = link;
+      btn.textContent = t.open;
+      btn.hidden = false;
+    }
+  }
+</script>
+</body>
+</html>

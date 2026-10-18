@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.lorrde.cozyfocus",
+      "sha256_cert_fingerprints": [
+        "41:A4:36:2B:8A:C1:A6:2B:D6:E2:8D:56:B3:22:F2:B4:8E:E7:48:3B:3C:0A:F2:37:D0:A7:04:EC:1F:F0:03:26"
+      ]
+    }
+  }
+]
