@@ -1,6 +1,6 @@
 # lorrde.github.io
 
-Public site for lorrde's apps, served by GitHub Pages.
+Public site for Nyx Apps (nyxappz@gmail.com), served by GitHub Pages.
 
 | Path | Purpose |
 | --- | --- |
